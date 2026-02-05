@@ -51,11 +51,19 @@
           Accuracy: <span class="mono" id="acc">—</span> • Map: <span class="mono" id="mapUrl">—</span>
         </p>
 
-        <!-- VIDEO OPTION A (recommended): your own MP4 file -->
-        <video id="vid" class="hidden" controls playsinline>
-          <!-- Put your video file name here (must be in same folder) -->
-          <source src="reel.mp4" type="video/mp4">
-        </video>
+         <!-- REEL PLACEHOLDER (shows only after location permission) -->
+<div id="reelBox" style="margin-top:14px;">
+  <a id="reelLink"
+     href=https://www.instagram.com/reel/DT85JugjKBV/?igsh=MTc1cXJtOTRmaGE4ZA==
+     target="_blank"
+     rel="noopener"
+     style="display:block;text-align:center;padding:14px;border-radius:14px;background:#222;color:#fff;text-decoration:none;">
+    Tap to open the reel
+  </a>
+  <p class="muted" style="margin:10px 0 0; text-align:center;">
+    After you allow location, the reel will appear here.
+  </p>
+</div>
 
         <!-- VIDEO OPTION B: YouTube (uncomment and put your link id) -->
         <!--
