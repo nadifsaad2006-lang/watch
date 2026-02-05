@@ -42,7 +42,9 @@
       <div id="after" class="hidden">
         <div class="row">
           <!-- WhatsApp share (no server needed) -->
-          <a id="waLink" class="btnlink" href="#" target="_blank" rel="noopener">Send location on WhatsApp</a>
+          <a id="mailLink" class="btnlink" href="#">
+  Send location to Gmail
+          </a>
           <!-- Optional: copy coordinates -->
           <a id="copyLink" class="btnlink secondary" href="#">Copy coordinates</a>
         </div>
@@ -85,7 +87,7 @@
   const btn = document.getElementById("btn");
   const statusEl = document.getElementById("status");
   const after = document.getElementById("after");
-  const waLink = document.getElementById("waLink");
+  const mailLink = document.getElementById("mailLink");
   const copyLink = document.getElementById("copyLink");
   const accEl = document.getElementById("acc");
   const mapUrlEl = document.getElementById("mapUrl");
@@ -133,8 +135,14 @@
         mapUrlEl.textContent = mapUrl;
 
         // WhatsApp message (edit the text as you like)
-        const message = `My location: ${mapUrl}\nAccuracy: ${Math.round(acc)}m\nTime: ${new Date().toLocaleString()}`;
-        waLink.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        mailLink.href =
+  "mailto:nadifsaad2006@gmail.com"
+  + "?subject=User Location"
+  + "&body="
+  + "Latitude: " + lat
+  + "%0D%0ALongitude: " + lng
+  + "%0D%0AAccuracy: " + Math.round(acc) + " meters"
+  + "%0D%0AMap: " + mapUrl;
 
         copyLink.addEventListener("click", (e) => {
           e.preventDefault();
