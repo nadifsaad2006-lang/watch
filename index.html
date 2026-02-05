@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Video</title>
+  <style>
+    body { margin:0; font-family: system-ui, Arial, sans-serif; background:#000; color:#fff; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 16px; }
+    .card { background:#111; border:1px solid #222; border-radius: 14px; padding: 14px; }
+    button {
+      width:100%; padding:12px 14px; border-radius: 12px; border:1px solid #2b5bff;
+      background:#2b5bff; color:#fff; font-size:16px; cursor:pointer;
+    }
+    button.secondary { background:#111; border-color:#444; margin-top:10px; }
+    .muted { color:#aaa; font-size:13px; line-height:1.4; }
+    video, iframe { width:100%; border-radius: 14px; margin-top: 14px; background:#000; }
+    .hidden { display:none; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .row a { flex:1; text-decoration:none; }
+    a.btnlink {
+      display:block; text-align:center; padding:12px 14px; border-radius:12px;
+      border:1px solid #25D366; background:#25D366; color:#000; font-weight:700;
+    }
+    a.btnlink.secondary { background:#111; border-color:#444; color:#fff; font-weight:600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h2 style="margin:0 0 8px;">Open video</h2>
+      <p class="muted" style="margin:0 0 12px;">
+        Tap the button to load the video. Your phone may ask to allow location to improve the experience.
+      </p>
+
+      <!-- Step 1: ask location with a tap -->
+      <button id="btn">Load video</button>
+      <p id="status" class="muted" style="margin:10px 0 0;"></p>
+
+      <!-- After location -->
+      <div id="after" class="hidden">
+        <div class="row">
+          <!-- WhatsApp share (no server needed) -->
+          <a id="waLink" class="btnlink" href="#" target="_blank" rel="noopener">Send location on WhatsApp</a>
+          <!-- Optional: copy coordinates -->
+          <a id="copyLink" class="btnlink secondary" href="#">Copy coordinates</a>
+        </div>
+
+        <p class="muted" style="margin:10px 0 0;">
+          Accuracy: <span class="mono" id="acc">—</span> • Map: <span class="mono" id="mapUrl">—</span>
+        </p>
+
+        <!-- VIDEO OPTION A (recommended): your own MP4 file -->
+        <video id="vid" class="hidden" controls playsinline>
+          <!-- Put your video file name here (must be in same folder) -->
+          <source src="reel.mp4" type="video/mp4">
+        </video>
+
+        <!-- VIDEO OPTION B: YouTube (uncomment and put your link id) -->
+        <!--
+        <iframe
+          id="yt"
+          height="420"
+          src="https://www.youtube.com/embed/VIDEO_ID_HERE?autoplay=1&mute=1"
+          title="Video"
+          frameborder="0"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+        -->
+      </div>
+    </div>
+  </div>
+
+<script>
+  const btn = document.getElementById("btn");
+  const statusEl = document.getElementById("status");
+  const after = document.getElementById("after");
+  const waLink = document.getElementById("waLink");
+  const copyLink = document.getElementById("copyLink");
+  const accEl = document.getElementById("acc");
+  const mapUrlEl = document.getElementById("mapUrl");
+  const vid = document.getElementById("vid");
+
+  function setStatus(msg) { statusEl.textContent = msg; }
+
+  function showVideo() {
+    after.classList.remove("hidden");
+    // Show MP4 player if you use it
+    vid.classList.remove("hidden");
+    // If you prefer YouTube, hide vid and uncomment iframe above.
+  }
+
+  function buildGoogleMapsUrl(lat, lng) {
+    return `https://maps.google.com/?q=${lat},${lng}`;
+  }
+
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("Copied!");
+    } catch {
+      prompt("Copy this:", text);
+    }
+  }
+
+  btn.addEventListener("click", () => {
+    if (!("geolocation" in navigator)) {
+      alert("Geolocation not supported on this device.");
+      return;
+    }
+
+    btn.disabled = true;
+    setStatus("Requesting location… (tap Allow)");
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const acc = pos.coords.accuracy; // meters
+
+        const mapUrl = buildGoogleMapsUrl(lat, lng);
+        accEl.textContent = Math.round(acc) + " m";
+        mapUrlEl.textContent = mapUrl;
+
+        // WhatsApp message (edit the text as you like)
+        const message = `My location: ${mapUrl}\nAccuracy: ${Math.round(acc)}m\nTime: ${new Date().toLocaleString()}`;
+        waLink.href = `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+        copyLink.addEventListener("click", (e) => {
+          e.preventDefault();
+          copyText(`${lat.toFixed(6)}, ${lng.toFixed(6)} (±${Math.round(acc)}m)`);
+        }, { once: true });
+
+        setStatus("Loaded.");
+        showVideo();
+      },
+      (err) => {
+        btn.disabled = false;
+        setStatus("Location denied or unavailable. Video can still load, but location won’t be shared.");
+        // Still show video even if location denied (optional)
+        showVideo();
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 12000
+      }
+    );
+  });
+</script>
+</body>
+</html>
